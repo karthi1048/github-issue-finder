@@ -1,4 +1,5 @@
 import requests
+from models import Issue
 
 class GitHubClient:
     """
@@ -34,6 +35,35 @@ class GitHubClient:
         response.raise_for_status()
         return response.json()
 
+    # Conversion layer which knows GitHub's JSON structure.
+    def _convert_issue(self, repository: str, data: dict) -> Issue:
+        """
+        Convert GitHub JSON into an Issue object.
+        """
+
+        # Using list comprehension to only extract label names & use get() to avoid KeyError if "labels" key is missing.
+        labels = [
+            label["name"]
+            for label in data.get("labels", [])
+        ]
+
+        assignee = None
+
+        # Check if the issue has an assignee and extract the login name if present.
+        if data.get("assignee"):
+            assignee = data["assignee"]["login"]
+
+        # Returns an Issue object.
+        return Issue(
+            repository=repository,
+            number=data["number"],
+            title=data["title"],
+            url=data["html_url"],
+            labels=labels,
+            assignee=assignee,
+            comments=data["comments"],
+        )
+
     def get_open_issues(self, repository: str):
         """
         Fetch all open issues from a repository.
@@ -45,4 +75,9 @@ class GitHubClient:
             "state": "open",
         }
 
-        return self._get(endpoint, params)
+        issues = self._get(endpoint, params)
+
+        return [
+            self._convert_issue(repository, issue)
+            for issue in issues
+        ]

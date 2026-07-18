@@ -14,8 +14,11 @@ def main() -> None:
 
     for repository in repositories:
         issues = client.get_open_issues(repository)
-        print(f"{repository}")
+        print(f"\nRepository: {repository}")
         print(f"Open Issues: {len(issues)}\n")
+    
+        for issue in issues[:5]:  # Display only the first 5 issues
+            print(f"Issue #{issue.number}: {issue.title}")
 
     # print(f"\nTotal repositories: {len(repositories)}")
 
