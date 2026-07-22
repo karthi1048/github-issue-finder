@@ -14,3 +14,4 @@ class Issue:
     assignee: str | None
     comments: int
     is_pull_request: bool
+    score: int = 0
