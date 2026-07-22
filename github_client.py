@@ -53,6 +53,8 @@ class GitHubClient:
         if data.get("assignee"):
             assignee = data["assignee"]["login"]
 
+        is_pull_request = "pull_request" in data
+
         # Returns an Issue object.
         return Issue(
             repository=repository,
@@ -62,6 +64,7 @@ class GitHubClient:
             labels=labels,
             assignee=assignee,
             comments=data["comments"],
+            is_pull_request=is_pull_request,
         )
 
     def get_open_issues(self, repository: str):

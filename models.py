@@ -13,3 +13,4 @@ class Issue:
     labels: list[str]
     assignee: str | None
     comments: int
+    is_pull_request: bool

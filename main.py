@@ -1,11 +1,13 @@
 from config import Config
 from github_client import GitHubClient
+from filters import IssueFilter
 
 def main() -> None:
     config = Config()
 
     repositories = config.load_repositories()
     client = GitHubClient(config.github_token)
+    issue_filter = IssueFilter()
     print("\nScanning Repositories\n")
 
     # Listing repositories using enumerate for better readability and indexing.
@@ -14,13 +16,17 @@ def main() -> None:
 
     for repository in repositories:
         issues = client.get_open_issues(repository)
+        original_count = len(issues)
+        filtered_issues = issue_filter.apply_filters(issues)
+
         print(f"\nRepository: {repository}")
-        print(f"Open Issues: {len(issues)}\n")
+        print(f"Original Issues: {original_count}\n")
+        print(f"Filtered Issues: {len(filtered_issues)}\n")
     
-        for issue in issues[:5]:  # Display only the first 5 issues
+        for issue in filtered_issues[:5]:  # Display only the first 5 issues
             print(f"Issue #{issue.number}: {issue.title}")
 
-    # print(f"\nTotal repositories: {len(repositories)}")
+        print("\n" + "-" * 40) # Separator for better readability between repositories
 
 # Guard to ensure the main function runs only when the script is executed directly.
 if __name__ == "__main__":
